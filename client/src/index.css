@@ -203,3 +203,34 @@ input:focus, select:focus {
 @media (max-width: 900px) {
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* ---------- Header extras ---------- */
+.brand-name { white-space: nowrap; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+/* ---------- System status pill ---------- */
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--muted);
+  padding: 4px 10px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface);
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtle); }
+.status-ok .status-dot { background: #10b981; box-shadow: 0 0 0 3px #d1fae5; }
+.status-down { color: var(--danger); border-color: #fecaca; background: #fef2f2; }
+.status-down .status-dot { background: var(--danger); }
+
+/* ---------- Footer ---------- */
+.footer {
+  max-width: 1200px; margin: 0 auto; padding: 16px 24px 32px;
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  color: var(--subtle); font-size: 12.5px; border-top: 1px solid var(--border);
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 640px) {
+  .topbar-inner { padding: 0 16px; }
+  .brand-name, .status-label { display: none; }
+  .nav { margin-left: 16px; }
+  .page { padding: 20px 16px 40px; }
+  .footer { padding: 16px; }
+}

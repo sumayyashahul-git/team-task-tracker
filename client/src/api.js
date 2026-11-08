@@ -20,4 +20,5 @@ export const api = {
   updateTask: (id, changes) => request(`/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(changes) }),
   deleteTask: (id) => request(`/tasks/${id}`, { method: 'DELETE' }),
   getSummary: (days = 7) => request(`/summary?days=${days}`),
+  getHealth: () => request('/health/db'),
 };

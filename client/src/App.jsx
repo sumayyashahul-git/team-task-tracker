@@ -3,6 +3,7 @@ import { api } from './api';
 import TaskForm from './components/TaskForm';
 import TaskBoard, { isOverdue } from './components/TaskBoard';
 import Dashboard from './components/Dashboard';
+import StatusIndicator from './components/StatusIndicator';
 
 export default function App() {
   const [view, setView] = useState('board'); // 'board' or 'dashboard'
@@ -59,9 +60,9 @@ export default function App() {
     <>
       <header className="topbar">
         <div className="topbar-inner">
-          <div className="brand">
+                    <div className="brand">
             <span className="brand-mark">T</span>
-            Team Task Tracker
+            <span className="brand-name">Team Task Tracker</span>
           </div>
           <nav className="nav">
             <button
@@ -77,6 +78,9 @@ export default function App() {
               Dashboard
             </button>
           </nav>
+           <div className="topbar-right">
+            <StatusIndicator />
+          </div>
         </div>
       </header>
 
@@ -123,6 +127,10 @@ export default function App() {
           </>
         )}
       </main>
+            <footer className="footer">
+        <span>Team Task Tracker · v1.0</span>
+        <span>React on Vercel · Node.js on AWS ECS Fargate · PostgreSQL on Amazon RDS</span>
+      </footer>
     </>
   );
 }
