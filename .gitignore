@@ -1,3 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment files (secrets)
+.env
 .env.*
 !.env.example
-copy .env .env.example
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Vercel and AWS local files
+.vercel/
+.aws-sam/
+*.zip
