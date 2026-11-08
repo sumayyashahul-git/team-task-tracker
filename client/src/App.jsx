@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { api } from './api';
 import TaskForm from './components/TaskForm';
 import TaskBoard, { isOverdue } from './components/TaskBoard';
+import Dashboard from './components/Dashboard';
 
 export default function App() {
+  const [view, setView] = useState('board'); // 'board' or 'dashboard'
   const [tasks, setTasks] = useState([]);
   const [assignee, setAssignee] = useState('');
   const [error, setError] = useState('');
@@ -61,36 +63,64 @@ export default function App() {
             <span className="brand-mark">T</span>
             Team Task Tracker
           </div>
+          <nav className="nav">
+            <button
+              className={`nav-link ${view === 'board' ? 'active' : ''}`}
+              onClick={() => setView('board')}
+            >
+              Board
+            </button>
+            <button
+              className={`nav-link ${view === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setView('dashboard')}
+            >
+              Dashboard
+            </button>
+          </nav>
         </div>
       </header>
 
       <main className="page">
-        <div className="page-header">
-          <div>
-            <h1>Board</h1>
-            <p className="subtitle">
-              {visible.length} {visible.length === 1 ? 'task' : 'tasks'} · {overdueCount} overdue
-            </p>
-          </div>
-          <label className="filter">
-            Assignee
-            <select value={assignee} onChange={(e) => setAssignee(e.target.value)}>
-              <option value="">Everyone</option>
-              {assignees.map((name) => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <TaskForm onCreate={handleCreate} />
-
-        {error && <p className="error">{error}</p>}
-
-        {loading ? (
-          <p className="subtitle">Loading…</p>
+        {view === 'dashboard' ? (
+          <>
+            <div className="page-header">
+              <div>
+                <h1>Dashboard</h1>
+                <p className="subtitle">How the team is doing today</p>
+              </div>
+            </div>
+            <Dashboard />
+          </>
         ) : (
-          <TaskBoard tasks={visible} onMove={handleMove} onDelete={handleDelete} />
+          <>
+            <div className="page-header">
+              <div>
+                <h1>Board</h1>
+                <p className="subtitle">
+                  {visible.length} {visible.length === 1 ? 'task' : 'tasks'} · {overdueCount} overdue
+                </p>
+              </div>
+              <label className="filter">
+                Assignee
+                <select value={assignee} onChange={(e) => setAssignee(e.target.value)}>
+                  <option value="">Everyone</option>
+                  {assignees.map((name) => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <TaskForm onCreate={handleCreate} />
+
+            {error && <p className="error">{error}</p>}
+
+            {loading ? (
+              <p className="subtitle">Loading…</p>
+            ) : (
+              <TaskBoard tasks={visible} onMove={handleMove} onDelete={handleDelete} />
+            )}
+          </>
         )}
       </main>
     </>
