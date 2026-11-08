@@ -34,11 +34,13 @@ jobs:
       - name: Build image
         run: docker build -t api:ci server
 
-      - name: Smoke test the container
+            - name: Smoke test the container
         run: |
           docker run -d --name api -p 8080:8080 \
             -e DATABASE_URL=postgres://ci:ci@localhost:5432/ci -e DB_SSL=false api:ci
-          curl --retry 10 --retry-connrefused --retry-delay 2 -fsS http://localhost:8080/health
+          sleep 3
+          curl --retry 10 --retry-all-errors --retry-delay 2 -fsS http://localhost:8080/health \
+            || { echo "Health check failed. Container logs:"; docker logs api; exit 1; }
           docker rm -f api
 
       - name: Sign in to AWS (OIDC, no stored keys)
