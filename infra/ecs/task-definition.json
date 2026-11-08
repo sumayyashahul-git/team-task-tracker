@@ -1,0 +1,38 @@
+{
+  "family": "team-task-tracker-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "executionRoleArn": "arn:aws:iam::994788128567:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "994788128567.dkr.ecr.eu-north-1.amazonaws.com/team-task-tracker-api:v1",
+      "essential": true,
+      "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "8080" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:994788128567:secret:team-task-tracker/database-url-yKXlgI"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/team-task-tracker-api",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "api"
+        }
+      }
+    }
+  ]
+}
