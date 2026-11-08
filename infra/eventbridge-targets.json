@@ -1,0 +1,6 @@
+[
+  {
+    "Id": "daily-summary-lambda",
+    "Arn": "arn:aws:lambda:eu-north-1:994788128567:function:team-task-tracker-daily-summary"
+  }
+]
