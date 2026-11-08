@@ -1,0 +1,51 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lambda/**"
+      - ".github/workflows/deploy-lambda.yml"
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-north-1
+  AWS_ROLE_ARN: arn:aws:iam::994788128567:role/github-actions-deploy
+  FUNCTION_NAME: team-task-tracker-daily-summary
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lambda
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
+      - name: Check the code parses
+        run: node --check index.mjs
+
+      - name: Package
+        run: zip -qr function.zip index.mjs package.json node_modules
+
+      - name: Sign in to AWS (OIDC, no stored keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update the Lambda code
+        run: |
+          aws lambda update-function-code --function-name "$FUNCTION_NAME" --zip-file fileb://function.zip --query LastUpdateStatus --output text
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
