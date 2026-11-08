@@ -38,7 +38,7 @@ export default function TaskForm({ onCreate }) {
         <option value="high">High</option>
       </select>
       <input type="date" value={form.due_date} onChange={update('due_date')} />
-      <button type="submit" disabled={saving}>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
         {saving ? 'Adding…' : 'Add task'}
       </button>
     </form>
