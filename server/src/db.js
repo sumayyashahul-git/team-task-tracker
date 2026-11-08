@@ -1,4 +1,9 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+
+// Return DATE columns as plain 'YYYY-MM-DD' strings instead of JS Date objects.
+// Otherwise the timezone shift can move a due date to the previous day.
+// 1082 is Postgres's internal type ID for DATE.
+types.setTypeParser(1082, (value) => value);
 
 // A Pool keeps a set of open connections and reuses them,
 // like ADO.NET connection pooling.
