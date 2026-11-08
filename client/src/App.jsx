@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
 import TaskForm from './components/TaskForm';
-import TaskBoard from './components/TaskBoard';
+import TaskBoard, { isOverdue } from './components/TaskBoard';
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
-  const [assignee, setAssignee] = useState(''); // '' = everyone
+  const [assignee, setAssignee] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -24,7 +24,7 @@ export default function App() {
       setTasks((prev) => [created, ...prev]);
     } catch (err) {
       setError(err.message);
-      throw err; // lets the form know it failed, so it keeps the input
+      throw err;
     }
   }
 
@@ -32,7 +32,6 @@ export default function App() {
     setError('');
     try {
       const updated = await api.updateTask(task.id, { status });
-      // Replace just the changed task; React re-renders the board.
       setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
     } catch (err) {
       setError(err.message);
@@ -50,27 +49,50 @@ export default function App() {
     }
   }
 
-  // Unique, sorted list of names for the filter dropdown.
   const assignees = [...new Set(tasks.map((t) => t.assignee).filter(Boolean))].sort();
   const visible = assignee ? tasks.filter((t) => t.assignee === assignee) : tasks;
+  const overdueCount = visible.filter(isOverdue).length;
 
   return (
-    <main className="app">
-      <header className="app-header">
-        <h1>Team Task Tracker</h1>
-        <select value={assignee} onChange={(e) => setAssignee(e.target.value)}>
-          <option value="">Everyone</option>
-          {assignees.map((name) => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
+    <>
+      <header className="topbar">
+        <div className="topbar-inner">
+          <div className="brand">
+            <span className="brand-mark">T</span>
+            Team Task Tracker
+          </div>
+        </div>
       </header>
 
-      <TaskForm onCreate={handleCreate} />
+      <main className="page">
+        <div className="page-header">
+          <div>
+            <h1>Board</h1>
+            <p className="subtitle">
+              {visible.length} {visible.length === 1 ? 'task' : 'tasks'} · {overdueCount} overdue
+            </p>
+          </div>
+          <label className="filter">
+            Assignee
+            <select value={assignee} onChange={(e) => setAssignee(e.target.value)}>
+              <option value="">Everyone</option>
+              {assignees.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </label>
+        </div>
 
-      {error && <p className="error">{error}</p>}
+        <TaskForm onCreate={handleCreate} />
 
-      {loading ? <p>Loading…</p> : <TaskBoard tasks={visible} onMove={handleMove} onDelete={handleDelete} />}
-    </main>
+        {error && <p className="error">{error}</p>}
+
+        {loading ? (
+          <p className="subtitle">Loading…</p>
+        ) : (
+          <TaskBoard tasks={visible} onMove={handleMove} onDelete={handleDelete} />
+        )}
+      </main>
+    </>
   );
 }
