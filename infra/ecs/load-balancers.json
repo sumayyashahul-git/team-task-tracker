@@ -1,0 +1,7 @@
+[
+  {
+    "targetGroupArn": "arn:aws:elasticloadbalancing:eu-north-1:994788128567:targetgroup/team-task-tracker-api-tg/20b13d088e2a2aa4",
+    "containerName": "api",
+    "containerPort": 8080
+  }
+]
