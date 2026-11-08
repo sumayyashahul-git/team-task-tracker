@@ -8,7 +8,7 @@ function createApp(db) {
   app.use(cors());
   app.use(express.json()); // parse JSON request bodies
 
-
+const summaryRouter = require('./routes/summary');
   const tasksRouter = require('./routes/tasks');
   // The AWS load balancer calls this every few seconds.
   // It deliberately doesn't touch the database, so a slow DB
@@ -27,7 +27,7 @@ function createApp(db) {
     }
   });
   app.use('/api/tasks', tasksRouter(db));
-
+  app.use('/api/summary', summaryRouter(db));
   // Any URL that didn't match a route
   app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
