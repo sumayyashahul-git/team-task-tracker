@@ -14,6 +14,7 @@ const TZ = process.env.REPORT_TIMEZONE || 'Asia/Dubai';
 
 // event.date (optional, 'YYYY-MM-DD') lets you re-run the summary for a past day.
 export async function handler(event = {}) {
+  console.log(`Daily summary starting (timezone ${TZ}, requested date ${event.date ?? 'yesterday'})`);
   const client = await pool.connect();
   try {
     // One transaction: either both steps succeed, or neither is saved.

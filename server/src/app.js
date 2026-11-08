@@ -13,8 +13,10 @@ const summaryRouter = require('./routes/summary');
   // The AWS load balancer calls this every few seconds.
   // It deliberately doesn't touch the database, so a slow DB
   // doesn't make AWS think the container is dead and restart it.
-  app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+    app.get('/health', (req, res) => {
+    // APP_VERSION is set by the CI pipeline to the Git commit ID,
+    // so you can always see exactly which code is running.
+    res.json({ status: 'ok', version: process.env.APP_VERSION || 'dev' });
   });
 
   // A separate check that the database is reachable. Useful for debugging.

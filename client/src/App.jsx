@@ -128,7 +128,7 @@ export default function App() {
         )}
       </main>
             <footer className="footer">
-        <span>Team Task Tracker · v1.0</span>
+        <span>Team Task Tracker · v1.1</span>
         <span>React on Vercel · Node.js on AWS ECS Fargate · PostgreSQL on Amazon RDS</span>
       </footer>
     </>

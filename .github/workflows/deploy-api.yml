@@ -61,7 +61,7 @@ jobs:
           docker push "$IMAGE"
           echo "uri=$IMAGE" >> "$GITHUB_OUTPUT"
 
-      - name: Put the new image into the task definition
+            - name: Put the new image into the task definition
         id: taskdef
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
