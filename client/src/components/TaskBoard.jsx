@@ -78,10 +78,13 @@ function TaskCard({ task, onMove, onDelete }) {
   );
 }
 
-export default function TaskBoard({ tasks, onMove, onDelete }) {
+export default function TaskBoard({ tasks, statusFilter = 'all', onMove, onDelete }) {
+  // Show all three columns, or only the one the user picked.
+  const columns = statusFilter === 'all' ? COLUMNS : COLUMNS.filter((c) => c.status === statusFilter);
+
   return (
-    <div className="board">
-      {COLUMNS.map((col) => {
+    <div className={`board ${columns.length === 1 ? 'board-single' : ''}`}>
+      {columns.map((col) => {
         const items = tasks.filter((t) => t.status === col.status);
         return (
           <section key={col.status} className="column">

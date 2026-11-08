@@ -1,16 +1,22 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { api } from './api';
 import TaskForm from './components/TaskForm';
 import TaskBoard, { isOverdue } from './components/TaskBoard';
+import BoardToolbar from './components/BoardToolbar';
 import Dashboard from './components/Dashboard';
 import StatusIndicator from './components/StatusIndicator';
 
 export default function App() {
-  const [view, setView] = useState('board'); // 'board' or 'dashboard'
+  const [view, setView] = useState('board');
   const [tasks, setTasks] = useState([]);
-  const [assignee, setAssignee] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // ---- Filter state ----
+  const [assignee, setAssignee] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [overdueOnly, setOverdueOnly] = useState(false);
 
   useEffect(() => {
     api
@@ -52,33 +58,55 @@ export default function App() {
     }
   }
 
-  const assignees = [...new Set(tasks.map((t) => t.assignee).filter(Boolean))].sort();
-  const visible = assignee ? tasks.filter((t) => t.assignee === assignee) : tasks;
+  function clearFilters() {
+    setAssignee('');
+    setSearch('');
+    setStatusFilter('all');
+    setOverdueOnly(false);
+  }
+
+  // ---- Filtering (derived from state on every render, nothing extra stored) ----
+  const term = search.trim().toLowerCase();
+
+  // Everything except the status filter: used for the counts on the status toggle.
+  const filtered = tasks.filter(
+    (t) =>
+      (!assignee || t.assignee === assignee) &&
+      (!overdueOnly || isOverdue(t)) &&
+      (!term ||
+        t.title.toLowerCase().includes(term) ||
+        (t.assignee || '').toLowerCase().includes(term))
+  );
+
+  const counts = {
+    all: filtered.length,
+    todo: filtered.filter((t) => t.status === 'todo').length,
+    in_progress: filtered.filter((t) => t.status === 'in_progress').length,
+    done: filtered.filter((t) => t.status === 'done').length,
+  };
+
+  const visible = statusFilter === 'all' ? filtered : filtered.filter((t) => t.status === statusFilter);
+  const filtersActive = Boolean(assignee || term || overdueOnly || statusFilter !== 'all');
   const overdueCount = visible.filter(isOverdue).length;
+  const assignees = [...new Set(tasks.map((t) => t.assignee).filter(Boolean))].sort();
 
   return (
     <>
       <header className="topbar">
         <div className="topbar-inner">
-                    <div className="brand">
+          <div className="brand">
             <span className="brand-mark">T</span>
             <span className="brand-name">Team Task Tracker</span>
           </div>
           <nav className="nav">
-            <button
-              className={`nav-link ${view === 'board' ? 'active' : ''}`}
-              onClick={() => setView('board')}
-            >
+            <button className={`nav-link ${view === 'board' ? 'active' : ''}`} onClick={() => setView('board')}>
               Board
             </button>
-            <button
-              className={`nav-link ${view === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setView('dashboard')}
-            >
+            <button className={`nav-link ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>
               Dashboard
             </button>
           </nav>
-           <div className="topbar-right">
+          <div className="topbar-right">
             <StatusIndicator />
           </div>
         </div>
@@ -101,7 +129,8 @@ export default function App() {
               <div>
                 <h1>Board</h1>
                 <p className="subtitle">
-                  {visible.length} {visible.length === 1 ? 'task' : 'tasks'} · {overdueCount} overdue
+                  {filtersActive ? `${visible.length} of ${tasks.length}` : visible.length}{' '}
+                  {tasks.length === 1 ? 'task' : 'tasks'} · {overdueCount} overdue
                 </p>
               </div>
               <label className="filter">
@@ -117,18 +146,36 @@ export default function App() {
 
             <TaskForm onCreate={handleCreate} />
 
+            <BoardToolbar
+              search={search}
+              onSearch={setSearch}
+              status={statusFilter}
+              onStatus={setStatusFilter}
+              counts={counts}
+              overdueOnly={overdueOnly}
+              onOverdueOnly={setOverdueOnly}
+            />
+
             {error && <p className="error">{error}</p>}
 
             {loading ? (
               <p className="subtitle">Loading…</p>
+            ) : filtersActive && visible.length === 0 ? (
+              <div className="no-results">
+                <p>No tasks match your filters.</p>
+                <button type="button" className="btn btn-secondary" onClick={clearFilters}>
+                  Clear filters
+                </button>
+              </div>
             ) : (
-              <TaskBoard tasks={visible} onMove={handleMove} onDelete={handleDelete} />
+              <TaskBoard tasks={visible} statusFilter={statusFilter} onMove={handleMove} onDelete={handleDelete} />
             )}
           </>
         )}
       </main>
-            <footer className="footer">
-        <span>Team Task Tracker · v1.1</span>
+
+      <footer className="footer">
+        <span>Team Task Tracker · v1.2</span>
         <span>React on Vercel · Node.js on AWS ECS Fargate · PostgreSQL on Amazon RDS</span>
       </footer>
     </>
